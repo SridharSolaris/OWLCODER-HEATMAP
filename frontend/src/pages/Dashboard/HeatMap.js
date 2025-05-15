@@ -11,7 +11,7 @@ const HeatMap = () => {
       try {
         const username = localStorage.getItem("user")
         const response = await axios.get(
-          `${process.env.BACKEND}/details/${username}`,
+          `${process.env.REACT_APP_BACKEND}/details/${username}`,
         )
         setData(response.data.calendarData)
       } catch (error) {
