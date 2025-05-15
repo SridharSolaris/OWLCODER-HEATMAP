@@ -75,9 +75,9 @@ const ProgressChart = (props) => {
   return (
     <React.Fragment>
       <Card>
-        <CardBody className="bg-emerald-300">
-          <CardTitle className="h4 mb-4">Problems Solved</CardTitle>
-          <Row className="text-center mt-4">
+        <CardBody className="">
+          <CardTitle className="h4">Problems Solved</CardTitle>
+          <Row className="text-center py-3">
             <div className="col-6">
               <h4 className="font-size-20">{data.totalProbs}</h4>
               <p className="text-muted">Total</p>
@@ -87,9 +87,12 @@ const ProgressChart = (props) => {
               <p className="text-muted">Solved</p>
             </div>
           </Row>
-          <div dir="ltr">
-            <DonutChart />
-          </div>
+          <Row>
+            <div dir="ltr">
+              <DonutChart />
+            </div>
+          </Row>
+          
         </CardBody>
       </Card>
     </React.Fragment>

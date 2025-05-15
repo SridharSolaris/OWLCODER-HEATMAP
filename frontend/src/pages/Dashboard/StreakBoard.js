@@ -80,8 +80,9 @@ const StreakBoard = () => {
 return (
     <React.Fragment>
         <Card>
-            <CardBody>
-                <Row className="text-center mt-1">
+            <CardBody className="">
+            <h4 className="card-title mb-4 ">Streak</h4>
+                <Row className="text-center mt-1 py-4">
                     <row>
                         <h5 className="font-size-10">NO OF ACTIVE DAYS(TOTAL)</h5>
                     </row>

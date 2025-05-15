@@ -37,7 +37,6 @@
 //     }
 //   });
 
-
 //   const selectLoginState = (state) => state.Login;
 //   const LoginProperties = createSelector(
 //     selectLoginState,
@@ -58,7 +57,6 @@
 //   const socialResponse = type => {
 //     signIn(type);
 //   };
-
 
 //    return (
 //     <React.Fragment>
@@ -174,7 +172,6 @@
 //   history: PropTypes.object,
 // };
 
-
 // import axios from 'axios';
 // import React, { useState } from 'react';
 
@@ -214,8 +211,8 @@
 
 // export default Form1;
 
-import axios from 'axios';
-import React, { useState } from 'react';
+import axios from "axios"
+import React, { useState } from "react"
 
 import { Link } from "react-router-dom"
 import { Row, Col, CardBody, Card, Container, Input, Form } from "reactstrap"
@@ -223,29 +220,27 @@ import { Row, Col, CardBody, Card, Container, Input, Form } from "reactstrap"
 // import images
 import { GiOwl } from "react-icons/gi"
 const Login = () => {
-  
   const [Logindata, setLogindata] = useState({
-    "username":"",
-    "password":""
-})
-
-const handleLogin = (event) => {
-    event.preventDefault();
-  axios.post('http://localhost:9000/getlogins', Logindata).then((res) => {
-      if (res.data === null) {
-          alert('User Not Found')
-      } else if (res.data === false) {
-          alert('Invalid Password')
-      } else {
-          localStorage.setItem('user', Logindata.username);
-          alert(localStorage.getItem('user'))
-          window.location.href='/'
-      }
+    username: "",
+    password: "",
   })
-}
+
+  const handleLogin = event => {
+    event.preventDefault()
+    axios.post("http://localhost:9000/getlogins", Logindata).then(res => {
+      if (res.data === null) {
+        alert("User Not Found")
+      } else if (res.data === false) {
+        alert("Invalid Password")
+      } else {
+        localStorage.setItem("user", Logindata.username)
+        alert(localStorage.getItem("user"))
+        window.location.href = "/"
+      }
+    })
+  }
   return (
     <React.Fragment>
-      
       <div className="account-pages my-5 pt-sm-5">
         <Container>
           <Row className="justify-content-center">
@@ -254,26 +249,38 @@ const handleLogin = (event) => {
                 <CardBody className="pt-0">
                   <h3 className="text-center mt-3 mb-3">
                     <Link to="/" className="d-block auth-logo">
-                        <GiOwl color="maroon" size={80} className='auth-logo-dark'/>
+                      <GiOwl
+                        color="maroon"
+                        size={80}
+                        className="auth-logo-dark"
+                      />
                     </Link>
                   </h3>
                   <div className="p-3">
-                    <h4 className="text-muted font-size-18 mb-1 text-center">Welcome Back !</h4>
-                    <p className="text-muted text-center">Sign in to continue to OwlCoder.</p>
+                    <h4 className="text-muted font-size-18 mb-1 text-center">
+                      Welcome Back !
+                    </h4>
+                    <p className="text-muted text-center">
+                      Sign in to continue to OwlCoder.
+                    </p>
                     <Form
                       className="form-horizontal mt-4"
                       onSubmit={handleLogin}
                     >
-
                       <div className="mb-3">
                         <Input
                           name="username"
                           id="username"
                           label="Username"
                           value={Logindata.username}
-                          onChange={(e) => setLogindata({...Logindata, username: e.target.value})}
+                          onChange={e =>
+                            setLogindata({
+                              ...Logindata,
+                              username: e.target.value,
+                            })
+                          }
                           className="form-control"
-                          placeholder="Enter email"
+                          placeholder="Test User: 21A91A05I2"
                           type="text"
                           required
                         />
@@ -284,11 +291,16 @@ const handleLogin = (event) => {
                           name="password"
                           label="Password"
                           id="password"
-                          value={Logindata.password} 
-                          onChange={(e) => setLogindata({...Logindata, password: e.target.value})}
+                          value={Logindata.password}
+                          onChange={e =>
+                            setLogindata({
+                              ...Logindata,
+                              password: e.target.value,
+                            })
+                          }
                           type="password"
                           required
-                          placeholder="Enter Password"
+                          placeholder="Test Pswd: Owl@123"
                         />
                       </div>
 
@@ -309,15 +321,22 @@ const handleLogin = (event) => {
                           </div>
                         </div>
                         <div className="col-6 text-end">
-                          <button className="btn btn-primary w-md waves-effect waves-light" type='submit'>Log In</button>
+                          <button
+                            className="btn btn-primary w-md waves-effect waves-light"
+                            type="submit"
+                          >
+                            Log In
+                          </button>
                         </div>
                       </div>
                       <div className="form-group mb-0 row">
                         <div className="col-12 mt-4">
-                          <Link to="/page-recoverpw" className="text-muted"><i className="mdi mdi-lock"></i> Forgot your password?</Link>
+                          <Link to="/page-recoverpw" className="text-muted">
+                            <i className="mdi mdi-lock"></i> Forgot your
+                            password?
+                          </Link>
                         </div>
                       </div>
-
                     </Form>
                   </div>
                 </CardBody>
@@ -325,17 +344,18 @@ const handleLogin = (event) => {
               <div className="mt-5 text-center">
                 <p>
                   Don&#39;t have an account ?{" "}
-                  <Link
-                    to="/register"
-                    className="text-primary"
-                  >
+                  <Link to="/register" className="text-primary">
                     {" "}
                     Signup now{" "}
                   </Link>{" "}
                 </p>
                 <p>
-                  © {new Date().getFullYear()} OwlCoder HeatMap Report Generation
-                  <span className="d-none d-sm-inline-block"> - Developed by ProjectSpace Team22.</span>
+                  © {new Date().getFullYear()} OwlCoder HeatMap Report
+                  Generation
+                  <span className="d-none d-sm-inline-block">
+                    {" "}
+                    - Developed by ProjectSpace Team22.
+                  </span>
                 </p>
               </div>
             </Col>

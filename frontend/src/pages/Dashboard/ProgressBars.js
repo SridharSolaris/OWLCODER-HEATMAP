@@ -35,8 +35,8 @@ const ProgressBars = ({ easy, medium, hard }) => {
     <React.Fragment>
       <Card>
       
-        <CardBody>
-          <h4 className="card-title mb-4">Problem Levels</h4>
+        <CardBody >
+          <h4 className="card-title">Problem Levels</h4>
           <Row p-6 className="flex space-between">
             <Col md="3">
               <FaFeather color="teal" size={50} />
