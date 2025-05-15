@@ -1,4 +1,4 @@
-import React, { useEffect, Component,useState } from "react"
+import React, { useEffect, Component, useState } from "react"
 import { Row, Col, Card, UncontrolledTooltip } from "reactstrap"
 import { connect } from "react-redux"
 import { Link } from "react-router-dom"
@@ -21,27 +21,25 @@ const Profile = props => {
     { title: "Dashboard", link: "#" },
   ]
 
-
-  const [data, setData] = useState({
-    
-  });
+  const [data, setData] = useState({})
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const username = localStorage.getItem('user');
-        const response = await axios.get(`http://localhost:9000/details/${username}`);
-        setData(response.data);
-        console.log(response.data);
-        console.log(username);
+        const username = localStorage.getItem("user")
+        const response = await axios.get(
+          `${process.env.BACKEND}/details/${username}`,
+        )
+        setData(response.data)
+        console.log(response.data)
+        console.log(username)
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error("Error fetching data:", error)
       }
-    };
+    }
 
-    fetchData();
-  }, []);
-
+    fetchData()
+  }, [])
 
   useEffect(() => {
     props.setBreadcrumbItems("Dashboard", breadcrumbItems)
@@ -50,10 +48,34 @@ const Profile = props => {
   const user = {
     username: data.username,
     socials: [
-      { id: 1, title: "Facebook", icon: "fab fa-facebook-f", link: "#", colorclass: "px-0 btn primary" },
-      { id: 2, title: "Twitter", icon: "fab fa-twitter", link: "#", colorclass: "px-0 btn info" },
-      { id: 3, title: "mobile", icon: "fa fa-phone", link: "#", colorclass: "px-0 btn danger" },
-      { id: 4, title: "skype", icon: "fab fa-skype", link: "#", colorclass: "px-0 btn info" },
+      {
+        id: 1,
+        title: "Facebook",
+        icon: "fab fa-facebook-f",
+        link: "#",
+        colorclass: "px-0 btn primary",
+      },
+      {
+        id: 2,
+        title: "Twitter",
+        icon: "fab fa-twitter",
+        link: "#",
+        colorclass: "px-0 btn info",
+      },
+      {
+        id: 3,
+        title: "mobile",
+        icon: "fa fa-phone",
+        link: "#",
+        colorclass: "px-0 btn danger",
+      },
+      {
+        id: 4,
+        title: "skype",
+        icon: "fab fa-skype",
+        link: "#",
+        colorclass: "px-0 btn info",
+      },
     ],
     imgUrl: user6,
     name: data.name,
@@ -66,7 +88,7 @@ const Profile = props => {
       <Card className="directory-card">
         <div>
           <div className="directory-bg text-center">
-          {/* <img
+            {/* <img
                 // className="covered"
                 src={user.imgUrl}
                 alt="Generic placeholder"
@@ -84,7 +106,10 @@ const Profile = props => {
             <p className=" mt-4">{user.name}</p>
             <h5 className="font-size-16">{user.username}</h5>
 
-            <p className="text-muted">{user.branch}<br/> {user.college}</p>
+            <p className="text-muted">
+              {user.branch}
+              <br /> {user.college}
+            </p>
             <hr />
             <h6>Social Media Accounts</h6>
             <ul className="social-links list mb-0 ">

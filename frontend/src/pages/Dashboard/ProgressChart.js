@@ -32,7 +32,6 @@
 //                         })
 //                     }
 
-                    
 //                     <div dir="ltr">
 //                         <DonutChart />
 //                     </div>
@@ -45,32 +44,34 @@
 // }
 
 // export default MonthlyEarnings
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import { Card, CardBody, Row, CardTitle } from "reactstrap";
-import DonutChart from "../AllCharts/DonutChart";
+import React, { useState, useEffect } from "react"
+import axios from "axios"
+import { Card, CardBody, Row, CardTitle } from "reactstrap"
+import DonutChart from "../AllCharts/DonutChart"
 
-const ProgressChart = (props) => {
+const ProgressChart = props => {
   const [data, setData] = useState({
     totalProbs: 0,
     solvedProbs: 0,
-  });
+  })
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const username = localStorage.getItem('user');
-        const response = await axios.get(`http://localhost:9000/details/${username}`);
-        setData(response.data);
-        console.log(response.data);
-        console.log(username);
+        const username = localStorage.getItem("user")
+        const response = await axios.get(
+          `${process.env.BACKEND}/details/${username}`,
+        )
+        setData(response.data)
+        console.log(response.data)
+        console.log(username)
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error("Error fetching data:", error)
       }
-    };
+    }
 
-    fetchData();
-  }, []);
+    fetchData()
+  }, [])
 
   return (
     <React.Fragment>
@@ -92,11 +93,10 @@ const ProgressChart = (props) => {
               <DonutChart />
             </div>
           </Row>
-          
         </CardBody>
       </Card>
     </React.Fragment>
-  );
-};
+  )
+}
 
-export default ProgressChart;
+export default ProgressChart
