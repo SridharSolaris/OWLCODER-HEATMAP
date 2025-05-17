@@ -1,90 +1,98 @@
-import React, { useEffect, useState } from "react"
-import { Card, CardBody } from "reactstrap"
+import React, { useEffect, useState, useRef } from "react"
+import { Card, CardBody, Row, Col, Tooltip } from "reactstrap"
 import * as echarts from "echarts"
 import axios from "axios"
-
+import { FaFire, FaInfoCircle } from "react-icons/fa"
 
 const HeatMap = () => {
   const [data, setData] = useState([])
+  const [loading, setLoading] = useState(true)
+  const chartRef = useRef(null)
+  const chartInstance = useRef(null)
+  const [tooltipOpen, setTooltipOpen] = useState(false)
+  const toggleTooltip = () => setTooltipOpen(!tooltipOpen)
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const username = localStorage.getItem("user")
         const response = await axios.get(
-          `${process.env.REACT_APP_BACKEND}/details/${username}`,
+          `${process.env.REACT_APP_BACKEND}/details/${username}`
         )
-        setData(response.data.calendarData)
+        setData(response.data.calendarData || [])
       } catch (error) {
         console.error("Error fetching data:", error)
+      } finally {
+        setLoading(false)
       }
     }
 
     fetchData()
   }, [])
 
-  useEffect(() => {
-    const chartDom = document.getElementById("main")
-    const myChart = echarts.init(chartDom)
+  const getFormattedData = () => {
+    return data.map(item => [item.date, item.count])
+  }
 
-    const getVirtualData = () => {
-      const result = data.map(item => [item.date, item.count])
-      return result
-    }
-
-    const filteredData = getVirtualData()
+  const getTopSubmissions = () => {
+    return getFormattedData()
       .filter(item => item[1] > 45)
       .sort((a, b) => b[1] - a[1])
       .slice(0, 10)
+  }
+
+  const renderChart = () => {
+    if (!chartRef.current) return
+
+    if (chartInstance.current) {
+      chartInstance.current.dispose()
+    }
+
+    const chart = echarts.init(chartRef.current)
+    chartInstance.current = chart
 
     const option = {
       darkMode: true,
-      title: {
-        top: 20,
-        left: "center",
-        text: "Heat Map",
-        textStyle: {
-          color: "#B9B8CE",
-        },
-      },
+      backgroundColor: "#100C2A",
       tooltip: {
         trigger: "item",
-        backgroundColor: "#333",
-        borderColor: "#666",
+        position: function (point, params, dom, rect, size) {
+          const [x, y] = point
+          const { contentSize, viewSize } = size
+          let posX = x
+          let posY = y
+
+          if (x + contentSize[0] > viewSize[0]) {
+            posX = x - contentSize[0]
+          }
+          if (y + contentSize[1] > viewSize[1]) {
+            posY = y - contentSize[1]
+          }
+          return [posX, posY]
+        },
+        formatter: params =>
+          `<strong>${params.value[1]} solved</strong><br/>📅 ${params.value[0]}`,
+        backgroundColor: "#222",
+        borderColor: "#444",
         borderWidth: 2,
         padding: 10,
+        extraCssText: "border-radius: 5px;",
         textStyle: {
           fontSize: 14,
           color: "#fff",
         },
-        extraCssText: "border-radius: 5px;",
-        formatter: function (params) {
-          return (
-            "Date: " + params.value[0] + "<br/>" + "Count: " + params.value[1]
-          )
-        },
       },
       visualMap: [
         {
-          seriesIndex: 0,
           min: 1,
           max: 51,
           type: "continuous",
           orient: "horizontal",
           left: "center",
           top: 50,
-          textStyle: {
-            color: "#ccccca",
-          },
+          textStyle: { color: "#ccccca" },
           inRange: {
             color: ["#c6e48b", "#7bc96f", "#239a3b", "#196127"],
-          },
-        },
-        {
-          show: false,
-          seriesIndex: 1,
-          inRange: {
-            color: ["yellow"],
           },
         },
       ],
@@ -92,14 +100,13 @@ const HeatMap = () => {
         top: 120,
         left: "center",
         width: "95%",
-        cellSize: ["auto", 15],
-        range: "2024", // Adjusted to match the year of the data
+        cellSize: ["auto", 20],
+        range: "2024",
         splitLine: {
           show: true,
           lineStyle: {
-            color: "#000",
+            color: "#100C2A",
             width: 4,
-            type: "solid",
           },
         },
         itemStyle: {
@@ -109,128 +116,103 @@ const HeatMap = () => {
         },
         yearLabel: { show: false },
         monthLabel: {
-          show: true,
           nameMap: "en",
-          align: "left",
-          color: "#ccccca",
+          margin: 15,
+          color: "#999",
         },
+        dayLabel: { show: false },
       },
       series: [
         {
-          data: getVirtualData(),
-          name: `Submissions (${data})`,
           type: "heatmap",
           coordinateSystem: "calendar",
+          data: getFormattedData(),
+          name: "Submissions",
         },
         {
-  name: "Top 3",
-  type: "effectScatter",
-  coordinateSystem: "calendar",
- symbol: "image://images/icon1.svg",
-  symbolSize: 60,
-  symbolKeepAspect: true,
-  showEffectOn: "render",
-  rippleEffect: {
-    color: "red",
-    brushType: "fill",
-    scale: 1,
-  },
-  tooltip: {
-    show: false,
-  },
-  itemStyle: {
-    color: "orange",
-    shadowBlur: 50,
-    shadowColor: "orange",
-  },
-  data: filteredData,
-  zlevel: 1,
-},
+          type: "effectScatter",
+          coordinateSystem: "calendar",
+          data: getTopSubmissions(),
+          symbol: "image://images/icon1.svg",
+          symbolSize: 40,
+          symbolKeepAspect: true,
+          rippleEffect: {
+            color: "red",
+            brushType: "fill",
+            scale: 1,
+          },
+          itemStyle: {
+            color: "orange",
+            shadowBlur: 50,
+            shadowColor: "orange",
+          },
+          zlevel: 1,
+          tooltip: { show: true },
+        },
       ],
-      backgroundColor: "#100C2A",
     }
 
-    option && myChart.setOption(option)
+    chart.setOption(option)
 
-    // Clean up
+    // Resize on window change
+    window.addEventListener("resize", chart.resize)
     return () => {
-      myChart.dispose()
+      window.removeEventListener("resize", chart.resize)
+      chart.dispose()
+    }
+  }
+
+  useEffect(() => {
+    if (data.length > 0) {
+      renderChart()
     }
   }, [data])
 
   return (
-    <Card>
-  <CardBody style={{ overflowX: "auto" }}>
-    <div id="main" style={{ width: "1500px", height: "300px" }}></div>
-  </CardBody>
-</Card>
+  <Card className="shadow-sm border-0" style={{ minHeight: "410px" }}>
+    <CardBody>
+      <Row className="justify-content-center mb-4">
+        <Col xs="auto">
+          <div className="d-flex align-items-center gap-2 justify-content-center">
+            <FaFire size={36} className="text-danger" />
+            <h4 className="card-title mb-0 text-center">Submissions Heatmap</h4>
+            <FaInfoCircle
+              id="heatmap-tooltip"
+              size={18}
+              className="text-muted "
+              style={{ cursor: "pointer", outline: "none" }}
+              onClick={toggleTooltip}
+              role="button"
+              tabIndex={0}
+              aria-label="More info about submission heatmap"
+            />
+            <Tooltip
+              placement="right"
+              isOpen={tooltipOpen}
+              target="heatmap-tooltip"
+              toggle={toggleTooltip}
+            >
+              Visualizes your daily submission activity throughout the year.
+            </Tooltip>
+          </div>
+        </Col>
+      </Row>
 
-  )
+      {loading ? (
+        <div style={{ color: "#fff", textAlign: "center" }}>
+          Loading Heatmap...
+        </div>
+      ) : (
+        <div
+          ref={chartRef}
+          id="main"
+          style={{ width: "100%", minWidth: "800px", height: "350px" }}
+        />
+      )}
+    </CardBody>
+  </Card>
+)
+
 }
 
 export default HeatMap
-
-//HeatMap2
-// import React, { useEffect, useState } from 'react';
-// import axios from 'axios';
-// import { Card, CardBody } from 'reactstrap';
-// import HeatMap from '@uiw/react-heat-map';
-// import Tooltip from "@uiw/react-tooltip";
-// import ActivityCalendar from 'react-activity-calendar';
-// const MyChart = () => {
-//   const [data, setData] = useState(null); // Initialize with null
-
-//   useEffect(() => {
-//     const fetchData = async () => {
-//       try {
-//         const username = localStorage.getItem('user');
-//         const response = await axios.get(`http://localhost:9000/details/${username}`);
-//         const transformedData = response.data.calendarData.map(item => ({
-//           date: item.date,
-//           count: item.count
-//         }));
-//         setData(transformedData);
-//         console.log(transformedData);
-//         console.log(username);
-//       } catch (error) {
-//         console.error("Error fetching data:", error);
-//       }
-//     };
-
-//     fetchData();
-//   }, []);
-
-//   return (
-
-//     <Card>
-//       <CardBody>
-//         {data && (
-//           <HeatMap
-//           rectSize={20}
-//             value={data}
-//             width='100%'
-//             height={200}
-//             panelColors={{
-//               1: '#606060',
-//               26:"#c6e48b",51: "#7bc96f",76: "#239a3b", 101:"#196127",
-//             }}
-//             style={{color: 'purple', '--rhm-rect': '#b9b9b9' }}
-//             startDate={new Date('2024-01-01')} // Specify a valid start date
-//             mode='light'
-//             radius='50%'
-//             rectRender={(props, data) => {
-//         // if (!data.count) return <rect {...props} />;
-//         return (
-//           <Tooltip placement="top" content={`count: ${data.count || 0}`}>
-//             <rect {...props} />
-//           </Tooltip>
-//         );
-//       }}
-//           />
-//         )}
-//       </CardBody>
-//     </Card>
-//   );
-// };
-
-// export default MyChart;

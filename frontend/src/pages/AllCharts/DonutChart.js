@@ -1,40 +1,44 @@
-import React, { Component } from 'react';
+import React from "react";
+import {
+  CircularProgressbar,
+  buildStyles
+} from "react-circular-progressbar";
+import "react-circular-progressbar/dist/styles.css";
+import { Tooltip as ReactTooltip } from "react-tooltip";
+import "react-tooltip/dist/react-tooltip.css";
 
-import C3Chart from 'react-c3js';
-import 'c3/c3.css';
+const DonutChart = ({ solved = 0, unsolved = 0 }) => {
+  const total = solved + unsolved;
+  const percentage = total > 0 ? ((solved / total) * 100).toFixed(1) : 0;
 
-class DonutChart extends Component {
+  const getColorByPercentage = (percentage) => {
+    if (percentage >= 80) return "#28a745"; // Green
+    if (percentage >= 50) return "#ffc107"; // Yellow
+    return "#dc3545";                      // Red
+  };
 
-    render() {
-        const data = {
-            columns: [
-                ['Solved', 20],
-                ['Unsolved', 12]
-                //['In-Store Sales', 50],
-            ],
-            type: "donut",
-        };
+  const dynamicColor = getColorByPercentage(percentage);
 
-    const donut = {
-        title: "Solved",
-        width: 10,
-        label: { show: !1 }
-    };
-
-    const color = {
-        pattern: ['rgb(0,255,0)','rgb(255,0,0)']  // '#28bbe3']
-    };
-
-    const size = {
-        height: 150
-    };
-
-        return (
-            <React.Fragment>
-                <C3Chart data={data} donut={donut} color={color} size={size} dir="ltr" />
-            </React.Fragment>
-        );
-    }
-}
+  return (
+    <div style={{ width: 200, height: 200, margin: "0 auto", position: "relative" }}>
+        <div
+        data-tooltip-id="chart-tooltip"
+        data-tooltip-content={`Solved: ${solved}, Unsolved: ${unsolved}, Total: ${total}`}
+      >
+      <CircularProgressbar
+        value={percentage}
+        text={`${percentage}%`}
+        styles={buildStyles({
+          pathColor: dynamicColor,
+          textColor: dynamicColor,
+          trailColor: "#eaeaea",
+          textSize: "16px",
+        })}
+      />
+      </div>
+      <ReactTooltip id="chart-tooltip" place="left-end" />
+    </div>
+  );
+};
 
 export default DonutChart;

@@ -1,144 +1,161 @@
-import React, { useEffect, Component, useState } from "react"
-import { Row, Col, Card, UncontrolledTooltip } from "reactstrap"
-import { connect } from "react-redux"
-import { Link } from "react-router-dom"
-import axios from "axios"
+import React, { useEffect, useState } from "react";
+import { Card, Spinner, UncontrolledTooltip } from "reactstrap";
+import { connect } from "react-redux";
+import { Link } from "react-router-dom";
+import axios from "axios";
+import { setBreadcrumbItems } from "../../store/actions";
 
-// Import Action to copy breadcrumb items from local state to redux state
-import { setBreadcrumbItems } from "../../store/actions"
+// Import fallback avatar
+import user6 from "../../assets/images/users/user-6.jpg";
 
-// Import Components
+const Profile = (props) => {
+  document.title = "Owl Coder HeatMap";
 
-// Import Images
-import user6 from "../../assets/images/users/user-6.jpg"
-import user11 from "../../assets/images/users/user-11.jpg"
-const Profile = props => {
-  document.title = "Owl Coder HeatMap"
+  const [data, setData] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   const breadcrumbItems = [
     { title: "OwlCoder", link: "#" },
     { title: "Pages", link: "#" },
     { title: "Dashboard", link: "#" },
-  ]
-
-  const [data, setData] = useState({})
+  ];
 
   useEffect(() => {
+    props.setBreadcrumbItems("Dashboard", breadcrumbItems);
+
     const fetchData = async () => {
       try {
-        const username = localStorage.getItem("user")
+        const username = localStorage.getItem("user");
+        if (!username) throw new Error("Username not found in localStorage");
+
         const response = await axios.get(
-          `${process.env.REACT_APP_BACKEND}/details/${username}`,
-        )
-        setData(response.data)
-        console.log(response.data)
-        console.log(username)
-      } catch (error) {
-        console.error("Error fetching data:", error)
+          `${process.env.REACT_APP_BACKEND}/details/${username}`
+        );
+        setData(response.data);
+      } catch (err) {
+        console.error("Error fetching user data:", err);
+        setError("Failed to load profile. Please try again later.");
+      } finally {
+        setLoading(false);
       }
-    }
+    };
 
-    fetchData()
-  }, [])
-
-  useEffect(() => {
-    props.setBreadcrumbItems("Dashboard", breadcrumbItems)
-  }, [])
+    fetchData();
+  }, [props]);
 
   const user = {
-    username: data.username,
+    username: data.username || "user@owlcoder",
+    name: data.name || "Student Name",
+    branch: data.branch || "Branch Info",
+    college: data.clg || "College Info",
+    imgUrl: user6,
     socials: [
       {
         id: 1,
         title: "Facebook",
         icon: "fab fa-facebook-f",
         link: "#",
-        colorclass: "px-0 btn primary",
+        colorclass: "primary",
       },
       {
         id: 2,
         title: "Twitter",
         icon: "fab fa-twitter",
         link: "#",
-        colorclass: "px-0 btn info",
+        colorclass: "info",
       },
       {
         id: 3,
         title: "mobile",
         icon: "fa fa-phone",
         link: "#",
-        colorclass: "px-0 btn danger",
+        colorclass: "danger",
       },
       {
         id: 4,
         title: "skype",
         icon: "fab fa-skype",
         link: "#",
-        colorclass: "px-0 btn info",
+        colorclass: "info",
       },
     ],
-    imgUrl: user6,
-    name: data.name,
-    branch: data.branch,
-    college: data.clg,
+  };
+
+  if (loading) {
+    return (
+      <Card className="text-center p-5">
+        <Spinner color="primary" />
+        <p className="mt-3">Loading profile...</p>
+      </Card>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card className="text-center p-5">
+        <p className="text-danger">{error}</p>
+      </Card>
+    );
   }
 
   return (
-    <React.Fragment>
-      <Card className="directory-card">
-        <div>
-          <div className="directory-bg text-center">
-            {/* <img
-                // className="covered"
-                src={user.imgUrl}
-                alt="Generic placeholder"
-              /> */}
-            <div className="directory-overlay">
-              <img
-                className="rounded-circle avatar-lg img-thumbnail"
-                src={user.imgUrl}
-                alt="Generic placeholder"
-              />
-            </div>
-          </div>
-
-          <div className="directory-content text-center p-4">
-            <p className=" mt-4">{user.name}</p>
-            <h5 className="font-size-16">{user.username}</h5>
-
-            <p className="text-muted">
-              {user.branch}
-              <br /> {user.college}
-            </p>
-            <hr />
-            <h6>Social Media Accounts</h6>
-            <ul className="social-links list mb-0 ">
-              {user.socials.map((social, key) => (
-                <React.Fragment key={key}>
-                  <li className="list-inline-item">
-                    <Link
-                      title=""
-                      className={"tooltips btn-" + social.colorclass}
-                      id={social.title + user.id}
-                      to={social.link}
-                    >
-                      <i className={social.icon}></i>
-                    </Link>
-                    <UncontrolledTooltip
-                      placement="top"
-                      target={social.title + user.id}
-                    >
-                      {social.title}
-                    </UncontrolledTooltip>
-                  </li>{" "}
-                </React.Fragment>
-              ))}
-            </ul>
-          </div>
+    <Card className="directory-card shadow-lg border-0">
+      <div className="directory-bg text-center position-relative bg-light">
+        <div className="directory-overlay pt-4">
+          <img
+            className="rounded-circle avatar-xl img-thumbnail"
+            src={user.imgUrl}
+            alt="Profile"
+            onError={(e) => {
+              e.target.onerror = null;
+              e.target.src = user6;
+            }}
+          />
         </div>
-      </Card>
-    </React.Fragment>
-  )
-}
+      </div>
 
-export default connect(null, { setBreadcrumbItems })(Profile)
+      <div className="directory-content text-center p-4">
+        <h4 className="fw-semibold mt-3">{user.name}</h4>
+        <p className="text-muted mb-1">@{user.username}</p>
+
+        <div className="my-3">
+          <p className="mb-1 text-muted">
+            <i className="fas fa-code-branch me-2"></i>
+            {user.branch}
+          </p>
+          <p className="mb-0 text-muted">
+            <i className="fas fa-university me-2"></i>
+            {user.college}
+          </p>
+        </div>
+
+        <hr />
+
+        <h6 className="text-uppercase text-muted mt-4 mb-3">Social Links</h6>
+        <ul className="list-inline">
+          {user.socials.map((social) => {
+            const tooltipId = `social-${social.id}`;
+            return (
+              <li className="list-inline-item mx-2" key={social.id}>
+                <Link
+                  to={social.link}
+                  className={`btn btn-soft-${social.colorclass} rounded-circle`}
+                  id={tooltipId}
+                  style={{ width: 40, height: 40, display: "inline-flex", alignItems: "center", justifyContent: "center" }}
+                >
+                  <i className={social.icon}></i>
+                </Link>
+                <UncontrolledTooltip placement="top" target={tooltipId}>
+                  {social.title}
+                </UncontrolledTooltip>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    </Card>
+  );
+};
+
+export default connect(null, { setBreadcrumbItems })(Profile);
